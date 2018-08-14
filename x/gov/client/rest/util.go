@@ -21,6 +21,16 @@ type baseReq struct {
 	Gas           int64  `json:"gas"`
 }
 
+// contains checks if the a given query contains one of the tx types
+func contains(stringSlice []string, txType string) bool {
+	for _, word := range stringSlice {
+		if word == txType {
+			return true
+		}
+	}
+	return false
+}
+
 func buildReq(w http.ResponseWriter, r *http.Request, cdc *wire.Codec, req interface{}) error {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {

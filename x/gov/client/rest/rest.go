@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -36,7 +37,7 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *wire.Codec) {
 
 	r.HandleFunc(fmt.Sprintf("/gov/proposals/{%s}/votes", RestProposalID), queryVotesOnProposalHandlerFn(cdc)).Methods("GET")
 
-	r.HandleFunc("/gov/proposals", queryProposalsWithParameterFn(cdc)).Methods("GET")
+	r.HandleFunc("/gov/proposals", proposalsHandlerFn(cdc)).Methods("GET")
 }
 
 type postProposalReq struct {
@@ -434,37 +435,46 @@ func queryVotesOnProposalHandlerFn(cdc *wire.Codec) http.HandlerFunc {
 
 // nolint: gocyclo
 // todo: Split this functionality into helper functions to remove the above
-func queryProposalsWithParameterFn(cdc *wire.Codec) http.HandlerFunc {
+func proposalsHandlerFn(cdc *wire.Codec) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		bechVoterAddr := r.URL.Query().Get(RestVoter)
-		bechDepositerAddr := r.URL.Query().Get(RestDepositer)
+		// bechVoterAddr := r.URL.Query().Get(RestVoter)
+		// bechDepositerAddr := r.URL.Query().Get(RestDepositer)
 		strProposalStatus := r.URL.Query().Get(RestProposalStatus)
+		typesQuery := r.URL.Query().Get("type")
+		trimmedQuery := strings.TrimSpace(typesQuery)
+		if len(trimmedQuery) != 0 {
+			typesQuerySlice = strings.Split(trimmedQuery, " ")
+		}
+		noTypeQuery := len(typesQuerySlice) == 0
+		isText := contains(typesQuerySlice, "plain_text")
+		isSoftwareUpgrade := contains(typesQuerySlice, "software_upgrade")
+		isParamChange := contains(typesQuerySlice, "parameter_change")
 
 		var err error
 		var voterAddr sdk.AccAddress
 		var depositerAddr sdk.AccAddress
 		var proposalStatus gov.ProposalStatus
 
-		if len(bechVoterAddr) != 0 {
-			voterAddr, err = sdk.AccAddressFromBech32(bechVoterAddr)
-			if err != nil {
-				w.WriteHeader(http.StatusBadRequest)
-				err := errors.Errorf("'%s' needs to be bech32 encoded", RestVoter)
-				w.Write([]byte(err.Error()))
-				return
-			}
-		}
-
-		if len(bechDepositerAddr) != 0 {
-			depositerAddr, err = sdk.AccAddressFromBech32(bechDepositerAddr)
-			if err != nil {
-				w.WriteHeader(http.StatusBadRequest)
-				err := errors.Errorf("'%s' needs to be bech32 encoded", RestDepositer)
-				w.Write([]byte(err.Error()))
-
-				return
-			}
-		}
+		// if len(bechVoterAddr) != 0 {
+		// 	voterAddr, err = sdk.AccAddressFromBech32(bechVoterAddr)
+		// 	if err != nil {
+		// 		w.WriteHeader(http.StatusBadRequest)
+		// 		err := errors.Errorf("'%s' needs to be bech32 encoded", RestVoter)
+		// 		w.Write([]byte(err.Error()))
+		// 		return
+		// 	}
+		// }
+		//
+		// if len(bechDepositerAddr) != 0 {
+		// 	depositerAddr, err = sdk.AccAddressFromBech32(bechDepositerAddr)
+		// 	if err != nil {
+		// 		w.WriteHeader(http.StatusBadRequest)
+		// 		err := errors.Errorf("'%s' needs to be bech32 encoded", RestDepositer)
+		// 		w.Write([]byte(err.Error()))
+		//
+		// 		return
+		// 	}
+		// }
 
 		if len(strProposalStatus) != 0 {
 			proposalStatus, err = gov.ProposalStatusFromString(strProposalStatus)
