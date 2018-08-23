@@ -77,7 +77,14 @@ func GetCmdCreateValidator(cdc *wire.Codec) *cobra.Command {
 			} else {
 				msg = stake.NewMsgCreateValidator(validatorAddr, pk, amount, description)
 			}
-
+			if cliCtx.GenerateOnly {
+				json, err := utils.MarshalJSON(txCtx, cliCtx, []sdk.Msg{msg})
+				if err != nil {
+					return err
+				}
+				fmt.Printf("%s\n", json)
+				return nil
+			}
 			// build and sign the transaction, then broadcast to Tendermint
 			return utils.SendTx(txCtx, cliCtx, []sdk.Msg{msg})
 		},

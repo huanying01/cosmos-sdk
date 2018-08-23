@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -33,7 +34,14 @@ func GetCmdUnjail(cdc *wire.Codec) *cobra.Command {
 			}
 
 			msg := slashing.NewMsgUnjail(validatorAddr)
-
+			if cliCtx.GenerateOnly {
+				json, err := utils.MarshalJSON(txCtx, cliCtx, []sdk.Msg{msg})
+				if err != nil {
+					return err
+				}
+				fmt.Printf("%s\n", json)
+				return nil
+			}
 			return utils.SendTx(txCtx, cliCtx, []sdk.Msg{msg})
 		},
 	}
