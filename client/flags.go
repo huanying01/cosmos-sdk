@@ -23,6 +23,7 @@ const (
 	FlagAsync         = "async"
 	FlagJson          = "json"
 	FlagPrintResponse = "print-response"
+	FlagGenerateOnly  = "generate-only"
 )
 
 // LineBreak can be included in a command list to provide a blank line
@@ -58,6 +59,7 @@ func PostCommands(cmds ...*cobra.Command) []*cobra.Command {
 		c.Flags().Bool(FlagAsync, false, "broadcast transactions asynchronously")
 		c.Flags().Bool(FlagJson, false, "return output in json format")
 		c.Flags().Bool(FlagPrintResponse, true, "return tx response (only works with async = false)")
+		c.Flags().Bool(FlagGenerateOnly, false, "build an unsigned transaction and write it to STDOUT")
 	}
 	return cmds
 }

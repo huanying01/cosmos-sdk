@@ -32,6 +32,7 @@ type CLIContext struct {
 	Async           bool
 	JSON            bool
 	PrintResponse   bool
+	GenerateOnly    bool
 }
 
 // NewCLIContext returns a new initialized CLIContext with parameters from the
@@ -57,6 +58,7 @@ func NewCLIContext() CLIContext {
 		Async:           viper.GetBool(client.FlagAsync),
 		JSON:            viper.GetBool(client.FlagJson),
 		PrintResponse:   viper.GetBool(client.FlagPrintResponse),
+		GenerateOnly:    viper.GetBool(client.FlagGenerateOnly),
 	}
 }
 

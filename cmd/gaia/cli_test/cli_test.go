@@ -276,6 +276,25 @@ func TestGaiaCLISubmitProposal(t *testing.T) {
 	require.Equal(t, "  2 - Apples", proposalsQuery)
 }
 
+func TestGaiaCLISendGenerateOnly(t *testing.T) {
+	chainID, servAddr, port := initializeFixtures(t)
+	flags := fmt.Sprintf("--home=%s --node=%v --chain-id=%v", gaiacliHome, servAddr, chainID)
+
+	// start gaiad server
+	proc := tests.GoExecuteTWithStdout(t, fmt.Sprintf("gaiad start --home=%s --rpc.laddr=%v", gaiadHome, servAddr))
+
+	defer proc.Stop(false)
+	tests.WaitForTMStart(port)
+	tests.WaitForNextNBlocksTM(2, port)
+
+	barAddr, _ := executeGetAddrPK(t, fmt.Sprintf("gaiacli keys show bar --output=json --home=%s", gaiacliHome))
+	// Test send
+	success := executeWrite(t, fmt.Sprintf(
+		"gaiacli send %v --amount=10steak --to=%s --from=foo --generate-only",
+		flags, barAddr), []string{}...)
+	require.True(t, success)
+}
+
 //___________________________________________________________________________________
 // helper methods
 

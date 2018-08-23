@@ -77,7 +77,13 @@ func GetCmdCreateValidator(cdc *wire.Codec) *cobra.Command {
 			} else {
 				msg = stake.NewMsgCreateValidator(validatorAddr, pk, amount, description)
 			}
-
+			if cliCtx.GenerateOnly {
+				json, err := utils.MarshalStdSignMsgJSON(txCtx, cliCtx, []sdk.Msg{msg})
+				if err == nil {
+					fmt.Printf("%s\n", json)
+				}
+				return err
+			}
 			// build and sign the transaction, then broadcast to Tendermint
 			return utils.SendTx(txCtx, cliCtx, []sdk.Msg{msg})
 		},
@@ -116,6 +122,13 @@ func GetCmdEditValidator(cdc *wire.Codec) *cobra.Command {
 			}
 			msg := stake.NewMsgEditValidator(validatorAddr, description)
 
+			if cliCtx.GenerateOnly {
+				json, err := utils.MarshalStdSignMsgJSON(txCtx, cliCtx, []sdk.Msg{msg})
+				if err == nil {
+					fmt.Printf("%s\n", json)
+				}
+				return err
+			}
 			// build and sign the transaction, then broadcast to Tendermint
 			return utils.SendTx(txCtx, cliCtx, []sdk.Msg{msg})
 		},
@@ -155,6 +168,13 @@ func GetCmdDelegate(cdc *wire.Codec) *cobra.Command {
 
 			msg := stake.NewMsgDelegate(delegatorAddr, validatorAddr, amount)
 
+			if cliCtx.GenerateOnly {
+				json, err := utils.MarshalStdSignMsgJSON(txCtx, cliCtx, []sdk.Msg{msg})
+				if err == nil {
+					fmt.Printf("%s\n", json)
+				}
+				return err
+			}
 			// build and sign the transaction, then broadcast to Tendermint
 			return utils.SendTx(txCtx, cliCtx, []sdk.Msg{msg})
 		},
@@ -223,6 +243,13 @@ func GetCmdBeginRedelegate(storeName string, cdc *wire.Codec) *cobra.Command {
 
 			msg := stake.NewMsgBeginRedelegate(delegatorAddr, validatorSrcAddr, validatorDstAddr, sharesAmount)
 
+			if cliCtx.GenerateOnly {
+				json, err := utils.MarshalStdSignMsgJSON(txCtx, cliCtx, []sdk.Msg{msg})
+				if err == nil {
+					fmt.Printf("%s\n", json)
+				}
+				return err
+			}
 			// build and sign the transaction, then broadcast to Tendermint
 			return utils.SendTx(txCtx, cliCtx, []sdk.Msg{msg})
 		},
@@ -311,6 +338,13 @@ func GetCmdCompleteRedelegate(cdc *wire.Codec) *cobra.Command {
 
 			msg := stake.NewMsgCompleteRedelegate(delegatorAddr, validatorSrcAddr, validatorDstAddr)
 
+			if cliCtx.GenerateOnly {
+				json, err := utils.MarshalStdSignMsgJSON(txCtx, cliCtx, []sdk.Msg{msg})
+				if err == nil {
+					fmt.Printf("%s\n", json)
+				}
+				return err
+			}
 			// build and sign the transaction, then broadcast to Tendermint
 			return utils.SendTx(txCtx, cliCtx, []sdk.Msg{msg})
 		},
@@ -372,6 +406,13 @@ func GetCmdBeginUnbonding(storeName string, cdc *wire.Codec) *cobra.Command {
 
 			msg := stake.NewMsgBeginUnbonding(delegatorAddr, validatorAddr, sharesAmount)
 
+			if cliCtx.GenerateOnly {
+				json, err := utils.MarshalStdSignMsgJSON(txCtx, cliCtx, []sdk.Msg{msg})
+				if err == nil {
+					fmt.Printf("%s\n", json)
+				}
+				return err
+			}
 			// build and sign the transaction, then broadcast to Tendermint
 			return utils.SendTx(txCtx, cliCtx, []sdk.Msg{msg})
 		},
@@ -407,6 +448,13 @@ func GetCmdCompleteUnbonding(cdc *wire.Codec) *cobra.Command {
 
 			msg := stake.NewMsgCompleteUnbonding(delegatorAddr, validatorAddr)
 
+			if cliCtx.GenerateOnly {
+				json, err := utils.MarshalStdSignMsgJSON(txCtx, cliCtx, []sdk.Msg{msg})
+				if err == nil {
+					fmt.Printf("%s\n", json)
+				}
+				return err
+			}
 			// build and sign the transaction, then broadcast to Tendermint
 			return utils.SendTx(txCtx, cliCtx, []sdk.Msg{msg})
 		},

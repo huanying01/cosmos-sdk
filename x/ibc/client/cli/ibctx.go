@@ -2,6 +2,7 @@ package cli
 
 import (
 	"encoding/hex"
+	"fmt"
 	"os"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -41,6 +42,13 @@ func IBCTransferCmd(cdc *wire.Codec) *cobra.Command {
 
 			msg, err := buildMsg(from)
 			if err != nil {
+				return err
+			}
+			if cliCtx.GenerateOnly {
+				json, err := utils.MarshalStdSignMsgJSON(txCtx, cliCtx, []sdk.Msg{msg})
+				if err == nil {
+					fmt.Printf("%s\n", json)
+				}
 				return err
 			}
 

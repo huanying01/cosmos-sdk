@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth"
 	authctx "github.com/cosmos/cosmos-sdk/x/auth/client/context"
 	amino "github.com/tendermint/go-amino"
 	"github.com/tendermint/tendermint/libs/common"
@@ -23,35 +24,9 @@ const DefaultGasAdjustment = 1.2
 // addition, it builds and signs a transaction with the supplied messages.
 // Finally, it broadcasts the signed transaction to a node.
 func SendTx(txCtx authctx.TxContext, cliCtx context.CLIContext, msgs []sdk.Msg) error {
-	if err := cliCtx.EnsureAccountExists(); err != nil {
-		return err
-	}
-
-	from, err := cliCtx.GetFromAddress()
+	txCtx, err := prepareTxContext(txCtx, cliCtx)
 	if err != nil {
 		return err
-	}
-
-	// TODO: (ref #1903) Allow for user supplied account number without
-	// automatically doing a manual lookup.
-	if txCtx.AccountNumber == 0 {
-		accNum, err := cliCtx.GetAccountNumber(from)
-		if err != nil {
-			return err
-		}
-
-		txCtx = txCtx.WithAccountNumber(accNum)
-	}
-
-	// TODO: (ref #1903) Allow for user supplied account sequence without
-	// automatically doing a manual lookup.
-	if txCtx.Sequence == 0 {
-		accSeq, err := cliCtx.GetAccountSequence(from)
-		if err != nil {
-			return err
-		}
-
-		txCtx = txCtx.WithSequence(accSeq)
 	}
 
 	passphrase, err := keys.GetPassphrase(cliCtx.FromAddressName)
@@ -73,6 +48,25 @@ func SendTx(txCtx authctx.TxContext, cliCtx context.CLIContext, msgs []sdk.Msg) 
 	}
 	// broadcast to a Tendermint node
 	return cliCtx.EnsureBroadcastTx(txBytes)
+}
+
+// BuildStdSignMsg builds a StdSignMsg as per the parameters passed in the contexts.
+func BuildStdSignMsg(txCtx authctx.TxContext, cliCtx context.CLIContext, msgs []sdk.Msg) (auth.StdSignMsg, error) {
+	txCtx, err := prepareTxContext(txCtx, cliCtx)
+	if err != nil {
+		return auth.StdSignMsg{}, err
+	}
+	stdMsg, err := txCtx.Build(msgs)
+	return stdMsg, err
+}
+
+// MarshalStdSignMsgJSON builds a StdSignMsg and returns its JSON formatting.
+func MarshalStdSignMsgJSON(txCtx authctx.TxContext, cliCtx context.CLIContext, msgs []sdk.Msg) ([]byte, error) {
+	stdTx, err := BuildStdSignMsg(txCtx, cliCtx, msgs)
+	if err != nil {
+		return nil, err
+	}
+	return cliCtx.Codec.MarshalJSON(stdTx)
 }
 
 // EnrichCtxWithGas calculates the gas estimate that would be consumed by the
@@ -111,6 +105,40 @@ func CalculateGas(queryFunc func(string, common.HexBytes) ([]byte, error), cdc *
 	adjusted = adjustGasEstimate(estimate, adjustment)
 	fmt.Fprintf(os.Stderr, "gas: [estimated = %v] [adjusted = %v]\n", estimate, adjusted)
 	return
+}
+
+func prepareTxContext(txCtx authctx.TxContext, cliCtx context.CLIContext) (authctx.TxContext, error) {
+	if err := cliCtx.EnsureAccountExists(); err != nil {
+		return txCtx, err
+	}
+
+	from, err := cliCtx.GetFromAddress()
+	if err != nil {
+		return txCtx, err
+	}
+
+	if txCtx.AccountNumber == 0 {
+		// TODO: (ref #1903) Allow for user supplied account number without
+		// automatically doing a manual lookup.
+		accNum, err := cliCtx.GetAccountNumber(from)
+		if err != nil {
+			return txCtx, err
+		}
+
+		txCtx = txCtx.WithAccountNumber(accNum)
+	}
+
+	// TODO: (ref #1903) Allow for user supplied account sequence without
+	// automatically doing a manual lookup.
+	if txCtx.Sequence == 0 {
+		accSeq, err := cliCtx.GetAccountSequence(from)
+		if err != nil {
+			return txCtx, err
+		}
+
+		txCtx = txCtx.WithSequence(accSeq)
+	}
+	return txCtx, nil
 }
 
 func adjustGasEstimate(estimate int64, adjustment float64) int64 {
