@@ -136,6 +136,7 @@ func main() {
 	// add proxy, version and key info
 	rootCmd.AddCommand(
 		keys.Commands(),
+		keys.GetSignCommand(cdc),
 		client.LineBreak,
 		version.VersionCmd,
 	)
