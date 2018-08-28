@@ -22,11 +22,11 @@ func init() {
 // IBCPacket defines a piece of data that can be send between two separate
 // blockchains.
 type IBCPacket struct {
-	SrcAddr   sdk.AccAddress `json:"src-addr"`
-	DestAddr  sdk.AccAddress `json:"dest-addr"`
+	SrcAddr   sdk.AccAddress `json:"src_addr"`
+	DestAddr  sdk.AccAddress `json:"dest_addr"`
 	Coins     sdk.Coins      `json:"coins"`
-	SrcChain  string         `json:"src-chain"`
-	DestChain string         `json:"dest-chain"`
+	SrcChain  string         `json:"src_chain"`
+	DestChain string         `json:"dest_chain"`
 }
 
 func NewIBCPacket(srcAddr sdk.AccAddress, destAddr sdk.AccAddress, coins sdk.Coins,

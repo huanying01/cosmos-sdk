@@ -14,9 +14,9 @@ const MsgType = "gov"
 type MsgSubmitProposal struct {
 	Title          string         `json:"title"`           //  Title of the proposal
 	Description    string         `json:"description"`     //  Description of the proposal
-	ProposalType   ProposalKind   `json:"proposal-type"`   //  Type of proposal. Initial set {PlainTextProposal, SoftwareUpgradeProposal}
+	ProposalType   ProposalKind   `json:"proposal_type"`   //  Type of proposal. Initial set {PlainTextProposal, SoftwareUpgradeProposal}
 	Proposer       sdk.AccAddress `json:"proposer"`        //  Address of the proposer
-	InitialDeposit sdk.Coins      `json:"initial-deposit"` //  Initial deposit paid by sender. Must be strictly positive.
+	InitialDeposit sdk.Coins      `json:"initial_deposit"` //  Initial deposit paid by sender. Must be strictly positive.
 }
 
 func NewMsgSubmitProposal(title string, description string, proposalType ProposalKind, proposer sdk.AccAddress, initialDeposit sdk.Coins) MsgSubmitProposal {
